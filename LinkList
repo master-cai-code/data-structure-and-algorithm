@@ -54,7 +54,7 @@ void CreateListR(LinkList *&L,ElemType a[],int n){
 
 //销毁链表 
 void DestroyList(LinkList *&L){
-	LinkList *pre=L;*p=L->next;
+	LinkList *pre=L,*p=L->next;
 	while(p!=NULL){
 		free(pre);
 		pre=p;         //同步后移一位 
