@@ -1,4 +1,4 @@
-          //  Linklist.cpp文件
+          //  Linklist.cpp文件（链表基本操作）
 #include <iostream>
 #include <malloc.h>            //（想要转化的指针类型）malloc（需要空间大小）：分配内存空间
 using namespace std;
