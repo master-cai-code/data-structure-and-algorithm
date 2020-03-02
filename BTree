@@ -1,0 +1,157 @@
+   //BTree.cpp
+#include <iostream>
+#include <malloc.h>
+#define MaxSize 50
+using namespace std;
+
+typedef char ElemType;
+typedef struct node{
+	ElemType data;
+	struct node* lchild;
+	struct node* rchild;
+}BTNode;
+
+//创建二叉树 
+void CreateBTNode(BTNode* &b,char* str){
+	BTNode* St[MaxSize],*p;     //先创建一批树节点指针（指针数组） 
+	int top=-1,k,j=0;         //top是指针数组的下标 
+	char ch;
+	b=NULL;
+	ch=str[j];        //j用来记录字符串的下标 
+	while(ch!='\0'){         //遍历字符串 
+		switch(ch){
+			case '(':top++;St[top]=p;k=1;break;  //遇左括号，下一个为左孩子（k=1） 
+			case ')':top--;break;                //遇右括号，top回退（重新找相对“父节点”） 
+			case ',':k=2;break;                  //遇逗号，下一个为右孩子 （k=2） 
+			default:p=(BTNode*)malloc(sizeof(BTNode));//p为实时节点（指向正在操作的节点） 
+			        p->data=ch;p->lchild=p->rchild=NULL;
+			        if(b==NULL){
+			         	b=p;
+		          	}else{
+			        	switch(k){        //k用来标记左右孩子 
+					     case 1:St[top]->lchild=p;break;
+					     case 2:St[top]->rchild=p;break;		
+					}
+				}
+			}
+			j++;              //字符串向后移一位再次while循环 
+			ch=str[j];
+		}
+	cout<<"使用括号表示法字符串 创建二叉树成功!\n";
+	}
+
+//递归先序 
+void PreOrder(BTNode *b){
+	if(b!=NULL){
+		printf("%c",b->data);
+		PreOrder(b->lchild);
+		PreOrder(b->rchild);
+	}
+ } 
+ 
+//递归中序 
+void InOrder(BTNode *b){
+	if(b!=NULL){
+		InOrder(b->lchild);
+		printf("%c",b->data);
+		InOrder(b->rchild);
+	}
+ } 
+
+//递归后序 
+void PostOrder(BTNode *b){
+	if(b!=NULL){
+		PostOrder(b->lchild);
+		PostOrder(b->rchild);
+		printf("%c",b->data);
+	}
+ } 
+ 
+//先序非递归 (指针数组作为栈)：根出栈（打印），右左进栈 
+void SuperPreOrder(BTNode *b){		
+	BTNode* St[MaxSize],*p;
+	int top=-1;
+	if(b!=NULL){
+		top++;
+		St[top]=b;
+		while(top>-1){
+			p=St[top];      //相对“根节点”出栈 
+			top--;          
+			printf("%c",p->data);
+			if(p->rchild!=NULL){             
+				top++;St[top]=p->rchild;   //先右孩子进栈 
+			}                            //...
+			if(p->lchild!=NULL){         //...
+				top++;St[top]=p->lchild;   //再左孩子进栈（出栈时可以先出） 
+			}
+		}
+	//	printf("\n");
+	}
+} 
+  
+//中序非递归  ：左孩子全部进栈，栈顶为最左孩子（它再无左孩子），出栈（打印），取它右孩子继续循环 
+void SuperInOrder(BTNode *b){
+	BTNode* St[MaxSize],*p;
+	int top=-1;
+	if(b!=NULL){
+		p=b;
+		while(top>-1||p!=NULL){
+			while(p!=NULL){
+				top++;St[top]=p;p=p->lchild;  //所有左孩子进栈（最后一个左孩子出栈后，倒数第二个左孩子成为最左） 
+			}
+			if(top>-1){
+				p=St[top];
+				top--;
+				cout<<p->data;
+				p=p->rchild;
+			}
+		}
+	//	printf("\n");
+	}
+} 
+
+//后序非递归 
+void SuperPostOrder(BTNode* b){
+	BTNode *St[MaxSize],*p;
+	int top=-1,flag;             
+	if(b!=NULL){
+		do{
+			while(b!=NULL){
+				top++;St[top]=b;b=b->lchild;     //找到最左孩子 
+			}
+			p=NULL;       
+			flag=1;         //左孩子已结束（为空或已经访问过）可以访问右孩子了 
+			while(top!=-1&&flag){
+				b=St[top];
+				if(b->rchild==p){     //p指向当前正在访问节点 ，若p为当前出栈节点的右孩子，说明右孩子访问完了，可以访问栈顶 
+					cout<<b->data;
+					top--;
+					p=b;
+				}else{            //若右孩子没访问，就访问右孩子 
+					b=b->rchild;
+					flag=0;        //右孩子的左孩子不知访问没有，置flag为 0 
+				}
+			}
+		}while(top!=-1);
+		
+	}
+} 
+ int main(){
+ 	BTNode* b;
+ 	char str[]="A(B(D(,G)),C(E,F))";      //利用字符串创建二叉树
+ 	CreateBTNode(b,str);
+ 	cout<<"1.先序递归遍历：\n" ;
+ 	PreOrder(b);
+ 	cout<<"\n2.中序递归遍历：\n" ;
+ 	InOrder(b);
+ 	cout<<"\n3.后序递归遍历：\n" ;
+ 	PostOrder(b);
+ 	cout<<"\n***********************" ;
+    cout<<"\n1.先序非递归遍历：\n" ;
+ 	SuperPreOrder(b);
+ 	cout<<"\n2.中序非递归遍历：\n" ;
+ 	SuperInOrder(b);
+ 	cout<<"\n3.后序非递归遍历：\n" ;
+ 	SuperPostOrder(b);
+ 	return 0;
+ }
