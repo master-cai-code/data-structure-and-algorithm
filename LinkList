@@ -1,0 +1,77 @@
+          //  Linklist.cpp文件
+#include <iostream>
+#include <malloc.h>            //（想要转化的指针类型）malloc（需要空间大小）：分配内存空间
+using namespace std;
+
+typedef int ElemType;         //typedef定义别名
+
+typedef struct LNode{        //结构体（包含 普通数据域 和 指向自身的指针域）
+	ElemType data;
+	struct LNode* next;
+}LinkList;
+
+//遍历输出链表 
+void DispList(LinkList *L){
+ LinkList *p =L->next;
+ printf("链表输出："); 
+ while(p!=NULL){
+ 	printf("%d ",p->data);
+ 	p=p->next;
+ } 
+ printf("\n");
+} 
+
+//头插法(带头结点) 
+void CreateListF(LinkList *&L,ElemType a[],int n){
+	LinkList *s;                 //临时插入的节点
+	int i;
+	L=(LinkList *)malloc(sizeof(LinkList));   //为头结点L赋值（指向新开辟的空间）
+	L->next=NULL;
+	for(i=0;i<n;i++){
+		s=(LinkList *)malloc(sizeof(LinkList));
+		s->data=a[i];
+		s->next=L->next;    //L为头结点，新创结点总插到头结点后面即为头插法 
+		L->next=s;
+	}
+	printf("头插法创建成功\n");
+}
+
+//尾插法（带头结点） 
+void CreateListR(LinkList *&L,ElemType a[],int n){
+	LinkList *s,*r;
+	int i;
+	L=(LinkList *)malloc(sizeof(LinkList));
+	r=L;
+	for(i=0;i<n;i++){
+		s=(LinkList *)malloc(sizeof(LinkList));
+		s->data=a[i];
+		r->next=s;          //r为尾结点，新建结点总插到尾结点后面即为尾插法 
+		r=s;
+	}
+	r->next=NULL;           //最后一个尾巴指针置为NULL 
+	cout<<"尾插法创建成功\n";
+} 
+
+//销毁链表 
+void DestroyList(LinkList *&L){
+	LinkList *pre=L;*p=L->next;
+	while(p!=NULL){
+		free(pre);
+		pre=p;         //同步后移一位 
+		p=pre->next;
+	}
+	free(pre);
+} 
+
+int main(){
+	LinkList* L;
+	int a[]={1,2,3,4,5};     //利用数组去初始化链表
+  
+	CreateListF(L,a,5); 
+	DispList(L); 
+	
+	CreateListR(L,a,5);
+	DispList(L); 
+	
+	return 0;
+}
