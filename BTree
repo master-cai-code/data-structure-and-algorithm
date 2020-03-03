@@ -1,4 +1,3 @@
-   //BTree.cpp
 #include <iostream>
 #include <malloc.h>
 #define MaxSize 50
@@ -80,8 +79,8 @@ void SuperPreOrder(BTNode *b){
 			printf("%c",p->data);
 			if(p->rchild!=NULL){             
 				top++;St[top]=p->rchild;   //先右孩子进栈 
-			}                            //...
-			if(p->lchild!=NULL){         //...
+			}
+			if(p->lchild!=NULL){
 				top++;St[top]=p->lchild;   //再左孩子进栈（出栈时可以先出） 
 			}
 		}
@@ -110,7 +109,7 @@ void SuperInOrder(BTNode *b){
 	}
 } 
 
-//后序非递归 
+//后序非递归   :左、右孩子都访问了，才能访问此节点（相对父节点） 
 void SuperPostOrder(BTNode* b){
 	BTNode *St[MaxSize],*p;
 	int top=-1,flag;             
@@ -136,9 +135,51 @@ void SuperPostOrder(BTNode* b){
 		
 	}
 } 
+
+//层次遍历       :队列，进队出队（先进队的其左右孩子也先进队） 
+void LevelOrder(BTNode* b){
+	BTNode* p;
+	BTNode *qu[MaxSize];
+	int front,rear;
+	front=rear=-1;
+	rear++;
+	qu[rear]=b;
+	while(front!=rear){
+		front=(front+1)%MaxSize;
+		p=qu[front];
+		printf("%c",p->data);
+		if(p->lchild!=NULL){
+			rear=(rear+1)%MaxSize;
+			qu[rear]=p->lchild;
+		}
+		if(p->rchild!=NULL){
+			rear=(rear+1)%MaxSize;
+			qu[rear]=p->rchild;
+		}
+	}
+} 
+
+//利用先序和中序构建树 
+BTNode* CreateBTeeByPreAndIn(char *pre,char* in,int n){
+	BTNode* b;
+	char *p;
+	int k;
+	if(n<=0) return NULL;        //！！递归出口 
+	b=(BTNode*)malloc(sizeof(BTNode));
+	b->data=*pre;
+	for(p=in;p<in+n;p++){   //在中序序列里找先序的根节点 
+		if(*p==*pre){
+			break;
+		}
+	}
+	k=p-in;       //记录此根之前有几个元素 
+	b->lchild=CreateBTeeByPreAndIn(pre+1,in,k);    //递归找左节点 
+	b->rchild=CreateBTeeByPreAndIn(pre+1+k,p+1,n-k-1);  //右节点 
+	return b;                                        //返回“相对根”
+} 
  int main(){
  	BTNode* b;
- 	char str[]="A(B(D(,G)),C(E,F))";      //利用字符串创建二叉树
+ 	char str[]="A(B(D(,G)),C(E,F))";
  	CreateBTNode(b,str);
  	cout<<"1.先序递归遍历：\n" ;
  	PreOrder(b);
@@ -147,11 +188,18 @@ void SuperPostOrder(BTNode* b){
  	cout<<"\n3.后序递归遍历：\n" ;
  	PostOrder(b);
  	cout<<"\n***********************" ;
-    cout<<"\n1.先序非递归遍历：\n" ;
+        cout<<"\n1.先序非递归遍历：\n" ;
  	SuperPreOrder(b);
  	cout<<"\n2.中序非递归遍历：\n" ;
  	SuperInOrder(b);
  	cout<<"\n3.后序非递归遍历：\n" ;
  	SuperPostOrder(b);
+ 	cout<<"\n4.层次遍历：\n" ;
+ 	LevelOrder(b);
+ 	cout<<"\n***********************" ;
+ 	b=CreateBTeeByPreAndIn("ABDGCEF","DGBAECF",7);
+ 	cout<<"\n5.利用先序和中序序列建树----的后序递归遍历：\n" ;
+ 	PostOrder(b);
+ 
  	return 0;
  }
